@@ -1,8 +1,8 @@
 
 module.exports = {
   apps: [{
-    name: "the-war-of-art",
-    script: "/root/the-war-of-art/current/index.js",
+    name: "defold-twof-nodejs",
+    script: "/root/defold-twof-nodejs/current/index.js",
     instances: 1
   }],
   deploy: {
@@ -20,18 +20,18 @@ module.exports = {
       // GIT remote/branch
       ref: "origin/master",
       // GIT remote
-      repo: "git@github.com:holyxiaoxin/the-war-of-art.git",
+      repo: "git@github.com:holyxiaoxin/defold-twof-nodejs.git",
       // path in the server
-      path: "/root/the-war-of-art",
+      path: "/root/defold-twof-nodejs",
       // Pre-setup command or path to a script on your local machine
       'pre-setup': "ls -la",
       // Post-setup commands or path to a script on the host machine
       // eg: placing configurations in the shared dir etc
-      'post-setup': "pm2 start . --name the-war-of-art",
+      'post-setup': "npm install && pm2 start . --name defold-twof-nodejs",
       // pre-deploy action
       'pre-deploy-local': "echo 'This is a local executed command'",
       // post-deploy action
-      'post-deploy': "pm2 reload the-war-of-art",
+      'post-deploy': "npm install && pm2 reload defold-twof-nodejs",
     },
   }
 }

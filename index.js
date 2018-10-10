@@ -6,7 +6,7 @@ const gameServer = new Server({
   server: http.createServer()
 });
 
-const speed = 50 / 1000
+const speed = 100 / 1000
 const updateRate = 16.6666
 // const updateRate = 200
 
