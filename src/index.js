@@ -22,7 +22,6 @@ class ChatRoom extends Room {
   onInit() {
     console.log('onInit')
     this.setState({
-      messages: [],
       players: {},
     })
     this.intervals = {}
@@ -31,13 +30,11 @@ class ChatRoom extends Room {
   onLeave(client, _consented) {
     const message = `${client.id} left.`
     console.log(message)
-    this.state.messages.push(message)
   }
 
   onJoin(client) {
     const message = `${client.id} joined.`
     console.log(message)
-    this.state.messages.push(message)
     this.state.players[client.id] = {
       x: 240,
       y: 240,
@@ -48,43 +45,30 @@ class ChatRoom extends Room {
   moveTo(client, x, y) {
     console.log(this.state.players[client.id])
 
-    const delta_x = x - this.state.players[client.id].x
-		const delta_y = y - this.state.players[client.id].y
-		const diagonal_threshold = 10
+    const deltaX = x - this.state.players[client.id].x
+    const deltaY = y - this.state.players[client.id].y
+    const diagonalThreshold = 10
 
-    console.log(delta_x, delta_y)
+    console.log(deltaX, deltaY)
 
     // exit if reached threshold
-    if (Math.abs(delta_x) < diagonal_threshold && Math.abs(delta_y) < diagonal_threshold) {
-      return clearInterval(this.intervals[client.id])
+    if (Math.abs(deltaX) < diagonalThreshold && Math.abs(deltaY) < diagonalThreshold) {
+      clearInterval(this.intervals[client.id])
+      return
     }
 
     let moveDir = { x: 0, y: 0 }
 
-    if (Math.abs(Math.abs(delta_x) - Math.abs(delta_y)) < diagonal_threshold) {
-      if (delta_x > 0) {
-        moveDir.x = 1
-      } else {
-        moveDir.x = -1
-      }
-
-      if (delta_y > 0) {
-        moveDir.y = 1
-      } else {
-        moveDir.y = -1
-      }
-    } else if (Math.abs(delta_x) > Math.abs(delta_y)) {
-      if (delta_x > 0) {
-        moveDir.x = 1
-      } else {
-        moveDir.x = -1
-      }
+    if (Math.abs(Math.abs(deltaX) - Math.abs(deltaY)) < diagonalThreshold) {
+      // threshold is within diagonal, move left and right at the same time
+      moveDir.x = deltaX > 0 ? 1 : -1
+      moveDir.y = deltaY > 0 ? 1 : -1
+    } else if (Math.abs(deltaX) > Math.abs(deltaY)) {
+      // touch more horizontal than vertical, so move horizontal first
+      moveDir.x = deltaX > 0 ? 1 : -1
     } else {
-      if (delta_y > 0) {
-        moveDir.y = 1
-      } else {
-        moveDir.y = -1
-      }
+      // touch more vertical than horizontal, so move vertical first
+      moveDir.y = deltaY > 0 ? 1 : -1
     }
 
     moveDir = Victor.fromObject(moveDir).normalize().toObject()
@@ -96,8 +80,6 @@ class ChatRoom extends Room {
 
   onMessage(client, data) {
     // console.log(data)
-    // TODO: this slows down alot for big data
-    // this.state.messages.push(data)
     const [x, y] = data.split('_')
     // this.state.players[client.id].x = x
     // this.state.players[client.id].y = y
