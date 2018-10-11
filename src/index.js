@@ -8,7 +8,9 @@ const gameServer = new Server({
 })
 
 const speed = 200 / 1000
-const updateRate = 16.6666
+const _60fps = 16.6666
+// update at least twice faster than the game engine's update function
+const updateRate = _60fps / 2
 const dt = speed * updateRate
 // const updateRate = 200
 
