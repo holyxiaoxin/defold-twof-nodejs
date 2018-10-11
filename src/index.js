@@ -9,6 +9,7 @@ const gameServer = new Server({
 
 const speed = 200 / 1000
 const updateRate = 16.6666
+const dt = speed * updateRate
 // const updateRate = 200
 
 class ChatRoom extends Room {
@@ -35,10 +36,7 @@ class ChatRoom extends Room {
   onJoin(client) {
     const message = `${client.id} joined.`
     console.log(message)
-    this.state.players[client.id] = {
-      x: 240,
-      y: 240,
-    }
+    this.state.players[client.id] = { x: 240, y: 240 }
     this.intervals[client.id] = null
   }
 
@@ -48,11 +46,12 @@ class ChatRoom extends Room {
     const deltaX = x - this.state.players[client.id].x
     const deltaY = y - this.state.players[client.id].y
     const diagonalThreshold = 10
+    const exitThreshold = 1 * dt
 
-    console.log(deltaX, deltaY)
-
-    // exit if reached threshold
-    if (Math.abs(deltaX) < diagonalThreshold && Math.abs(deltaY) < diagonalThreshold) {
+    // exit condition: we teleport players to touch point on last mile
+    if (Math.abs(deltaX) < exitThreshold && Math.abs(deltaY) < exitThreshold) {
+      this.state.players[client.id].x = parseFloat(x)
+      this.state.players[client.id].y = parseFloat(y)
       clearInterval(this.intervals[client.id])
       return
     }
@@ -73,7 +72,6 @@ class ChatRoom extends Room {
 
     moveDir = Victor.fromObject(moveDir).normalize().toObject()
 
-    const dt = speed * updateRate
     this.state.players[client.id].x += moveDir.x * dt
     this.state.players[client.id].y += moveDir.y * dt
   }
@@ -94,6 +92,6 @@ class ChatRoom extends Room {
   }
 }
 
-// Register ChatRoom as "chat"
-gameServer.register('chat', ChatRoom)
+// Register ChatRoom as "common", should use playerid1-playerid2
+gameServer.register('common', ChatRoom)
 gameServer.listen(2657)
