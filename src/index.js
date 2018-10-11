@@ -4,8 +4,8 @@ const Victor = require('victor')
 
 // Create HTTP & WebSocket servers
 const gameServer = new Server({
-  server: http.createServer()
-});
+  server: http.createServer(),
+})
 
 const speed = 200 / 1000
 const updateRate = 16.6666
@@ -19,7 +19,7 @@ class ChatRoom extends Room {
     console.log('construct')
   }
 
-  onInit () {
+  onInit() {
     console.log('onInit')
     this.setState({
       messages: [],
@@ -28,14 +28,14 @@ class ChatRoom extends Room {
     this.intervals = {}
   }
 
-  onLeave(client, consented) {
-    const message = `${ client.id } left.`
+  onLeave(client, _consented) {
+    const message = `${client.id} left.`
     console.log(message)
     this.state.messages.push(message)
   }
 
-  onJoin (client) {
-    const message = `${ client.id } joined.`
+  onJoin(client) {
+    const message = `${client.id} joined.`
     console.log(message)
     this.state.messages.push(message)
     this.state.players[client.id] = {
@@ -94,7 +94,7 @@ class ChatRoom extends Room {
     this.state.players[client.id].y += moveDir.y * dt
   }
 
-  onMessage (client, data) {
+  onMessage(client, data) {
     // console.log(data)
     // TODO: this slows down alot for big data
     // this.state.messages.push(data)
@@ -109,11 +109,9 @@ class ChatRoom extends Room {
     this.intervals[client.id] = setInterval(() => {
       this.moveTo(client, x, y)
     }, updateRate)
-
-
   }
 }
 
 // Register ChatRoom as "chat"
-gameServer.register("chat", ChatRoom)
-gameServer.listen(2657);
+gameServer.register('chat', ChatRoom)
+gameServer.listen(2657)
