@@ -1,5 +1,6 @@
-const http = require("http")
-const { Server, Room } = require("colyseus")
+const http = require('http')
+const { Server, Room } = require('colyseus')
+const Victor = require('victor')
 
 // Create HTTP & WebSocket servers
 const gameServer = new Server({
@@ -58,7 +59,7 @@ class ChatRoom extends Room {
       return clearInterval(this.intervals[client.id])
     }
 
-    const moveDir = { x: 0, y: 0, z: 0 }
+    let moveDir = { x: 0, y: 0 }
 
     if (Math.abs(Math.abs(delta_x) - Math.abs(delta_y)) < diagonal_threshold) {
       if (delta_x > 0) {
@@ -85,9 +86,9 @@ class ChatRoom extends Room {
         moveDir.y = -1
       }
     }
-    console.log(moveDir)
 
-    // TODO: normalise?
+    moveDir = Victor.fromObject(moveDir).normalize().toObject()
+
     const dt = speed * updateRate
     this.state.players[client.id].x += moveDir.x * dt
     this.state.players[client.id].y += moveDir.y * dt
