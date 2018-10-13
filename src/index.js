@@ -24,7 +24,7 @@ class ChatRoom extends Room {
 
   onInit() {
     console.info('onInit')
-    this.setState(new BattleState())
+    this.setState(new BattleState(this.clock))
     this.intervals = {}
   }
 
@@ -43,7 +43,7 @@ class ChatRoom extends Room {
   onMessage(client, data) {
     const [x, y] = data.split('_')
 
-    this.state.startMoveInterval(this.clock, client.id, { x, y })
+    this.state.startMoveInterval(client.id, { x, y })
   }
 }
 

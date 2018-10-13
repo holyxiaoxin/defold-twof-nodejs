@@ -5,9 +5,10 @@ const { nonEnumerable } = require('./utils')
 const { playerMoveSpeed, updateRate } = require('./config')
 
 class BattleState {
-  constructor() {
+  constructor(clock) {
     this.players = {}
     nonEnumerable(this, 'intervals', {})
+    nonEnumerable(this, 'clock', clock)
   }
 
   addPlayer(id) {
@@ -60,12 +61,12 @@ class BattleState {
     this.movePlayerBy(id, { x: moveDir.x * dt, y: moveDir.y * dt })
   }
 
-  startMoveInterval(clock, id, position) {
+  startMoveInterval(id, position) {
     if (this.intervals[id]) {
       this.intervals[id].clear()
     }
 
-    this.intervals[id] = clock.setInterval(() => {
+    this.intervals[id] = this.clock.setInterval(() => {
       this.runMoveInterval(id, position)
     }, updateRate)
   }
