@@ -1,3 +1,4 @@
+const _ = require('lodash')
 const { playerDt } = require('./config')
 
 class MapLayout {
@@ -10,6 +11,28 @@ class MapLayout {
 
   isValidPosition(position) {
     return (position.x < (this.size * this.width)) && (position.y < (this.size * this.height))
+  }
+
+  sameTile(position1, position2) {
+    const centerP1 = this.posCenterTile(position1)
+    const centerP2 = this.posCenterTile(position2)
+    return _.isEqual(centerP1, centerP2)
+  }
+
+  getNearestTile(fromPosition, toPosition) {
+    const deltaX = this.center(toPosition.x) - this.center(fromPosition.x)
+    const deltaY = this.center(toPosition.y) - this.center(fromPosition.y)
+    const res = this.posCenterTile(fromPosition)
+
+    if (deltaX !== 0 || deltaY !== 0) {
+      if (Math.abs(deltaX) === Math.abs(deltaY) || Math.abs(deltaX) > Math.abs(deltaY)) {
+        res.x = this.center(fromPosition.x) + (deltaX > 0 ? 1 : -1) * this.size
+      } else {
+        res.y = this.center(fromPosition.y) + (deltaY > 0 ? 1 : -1) * this.size
+      }
+    }
+
+    return res
   }
 
   center(point) {

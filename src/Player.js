@@ -1,17 +1,34 @@
 class Player {
   constructor() {
-    this.x = 240
-    this.y = 240
+    this.position = { x: 240, y: 240 }
+    this.finalPosition = { x: null, y: null }
   }
 
   moveTo(position) {
-    this.x = parseFloat(position.x)
-    this.y = parseFloat(position.y)
+    this.position.x = parseFloat(position.x)
+    this.position.y = parseFloat(position.y)
   }
 
   moveBy(position) {
-    this.x += parseFloat(position.x)
-    this.y += parseFloat(position.y)
+    this.position.x += parseFloat(position.x)
+    this.position.y += parseFloat(position.y)
+  }
+
+  setFinalPosition(position) {
+    this.finalPosition.x = position.x
+    this.finalPosition.y = position.y
+  }
+
+  getFinalPosition() {
+    return this.finalPosition
+  }
+
+  isMoving() {
+    return this.finalPosition.x !== null && this.finalPosition.y !== null
+  }
+
+  clearFinalPosition() {
+    this.finalPosition = { x: null, y: null }
   }
 }
 
