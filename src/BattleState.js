@@ -48,6 +48,8 @@ class BattleState {
   }
 
   startMoveInterval(id, position) {
+    if (!this.layout.isValidPosition(position)) return
+
     if (this.intervals[id]) {
       this.intervals[id].clear()
     }

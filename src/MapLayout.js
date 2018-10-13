@@ -8,6 +8,10 @@ class MapLayout {
     this.height = height
   }
 
+  isValidPosition(position) {
+    return (position.x < (this.size * this.width)) && (position.y < (this.size * this.height))
+  }
+
   center(point) {
     return this.size * (parseInt(point / this.size, 10) + 0.5)
   }
