@@ -2,6 +2,7 @@ class Player {
   constructor() {
     this.position = { x: 240, y: 240 }
     this.finalPosition = { x: null, y: null }
+    this.hp = 10
   }
 
   moveTo(position) {

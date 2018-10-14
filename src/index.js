@@ -1,7 +1,7 @@
 const http = require('http')
 const { Server, Room } = require('colyseus')
 
-const BattleState = require('./BattleState')
+const BattleState = require('./classes/BattleState')
 
 // Create HTTP & WebSocket servers
 const gameServer = new Server({
@@ -25,25 +25,45 @@ class ChatRoom extends Room {
   onInit() {
     console.info('onInit')
     this.setState(new BattleState(this.clock))
-    this.intervals = {}
+
+    // // for debugging
+    // const botId = 'bot'
+    // this.state.addPlayer(botId)
   }
 
   onLeave(client, _consented) {
     const message = `${client.id} left.`
     console.info(message)
+    // clean up
   }
 
   onJoin(client) {
     const message = `${client.id} joined.`
     console.info(message)
     this.state.addPlayer(client.id)
-    this.intervals[client.id] = null
   }
 
   onMessage(client, data) {
-    const [x, y] = data.split('_')
-
-    this.state.startMoveInterval(client.id, { x, y })
+    const { type } = data
+    switch (type) {
+      case 'move_player': {
+        this.state.startMovePlayerInterval(client.id, data.position)
+        break
+      }
+      case 'attack_player': {
+        const opponentId = Object.keys(this.state.players).find(id => id !== client.id)
+        if (opponentId) {
+          this.state.attackPlayer(client.id, opponentId, data.position)
+        }
+        break
+      }
+      case 'clear_action': {
+        this.state.removeAction(client.id, data.uuid)
+        break
+      }
+      default:
+    }
+    // const [x, y] = data.split('_')
   }
 }
 

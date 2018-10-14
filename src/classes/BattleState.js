@@ -1,19 +1,23 @@
 const Player = require('./Player')
 const MapLayout = require('./MapLayout')
+const Actions = require('./Actions')
 
-const { nonEnumerable } = require('./utils')
-const { playerDt, updateRate } = require('./config')
+const { ACTION_SPELL } = require('../constants')
+const { nonEnumerable } = require('../utils')
+const { playerDt, updateRate } = require('../config')
 
 class BattleState {
   constructor(clock) {
     this.players = {}
     this.layout = new MapLayout(32, 20, 17)
+    this.actions = new Actions(clock)
     nonEnumerable(this, 'intervals', {})
     nonEnumerable(this, 'clock', clock)
   }
 
   addPlayer(id) {
     this.players[id] = new Player()
+    this.actions.addPlayer(id)
   }
 
   getPlayer(id) {
@@ -64,7 +68,7 @@ class BattleState {
         this.intervals[id].clear()
       } else {
         this.intervals[id].clear()
-        this._startMoveInterval(id, positions.slice(1, positions.length))
+        this._startMovePlayerInterval(id, positions.slice(1, positions.length))
       }
 
       return
@@ -75,7 +79,7 @@ class BattleState {
     this.movePlayerBy(id, { x: moveDir.x * playerDt, y: moveDir.y * playerDt })
   }
 
-  _startMoveInterval(id, positions) {
+  _startMovePlayerInterval(id, positions) {
     this.intervals[id] = this.clock.setInterval(() => {
       this.runMoveInterval(id, positions)
     }, updateRate)
@@ -94,20 +98,35 @@ class BattleState {
     return false
   }
 
-  startMoveInterval(id, position) {
+  startMovePlayerInterval(id, position) {
+    // validate
     if (this.shouldSkipMove(id, position)) return
 
-    if (this.intervals[id]) {
+    // reset state
+    if (this.intervals[id] && this.intervals[id].active) {
       this.clearPlayerFinalPosition(id)
       this.intervals[id].clear()
     }
 
+    // set-up
     this.setPlayerFinalPosition(id, position)
-    // we might be halfway moving and got interupted by another startMoveInterval,
+    // we might be halfway moving and got interupted by another startMovePlayerInterval,
     // we want to at least move to nearest tile first
     const nearestTile = this.layout.getNearestTile(this.getPlayerPosition(id), position)
     const centerTileFinalPosition = this.layout.posCenterTile(position)
-    this._startMoveInterval(id, [nearestTile, centerTileFinalPosition])
+
+    // start
+    this._startMovePlayerInterval(id, [nearestTile, centerTileFinalPosition])
+  }
+
+  attackPlayer(fromId, toId, position) {
+    if (this.layout.sameTile(this.getPlayerPosition(toId), position)) {
+      this.actions.addSpell(fromId, toId, ACTION_SPELL, this.layout.posCenterTile(position))
+    }
+  }
+
+  removeAction(id, uuid) {
+    this.actions.removeSpell(id, uuid)
   }
 }
 

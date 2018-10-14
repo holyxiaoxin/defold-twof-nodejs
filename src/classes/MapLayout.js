@@ -1,5 +1,5 @@
 const _ = require('lodash')
-const { playerDt } = require('./config')
+const { playerDt } = require('../config')
 
 class MapLayout {
   // size: pixel, width: in size unit, height: in size unit
