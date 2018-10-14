@@ -2,6 +2,7 @@ const http = require('http')
 const { Server, Room } = require('colyseus')
 
 const BattleState = require('./classes/BattleState')
+const { patchRate } = require('./config')
 
 // Create HTTP & WebSocket servers
 const gameServer = new Server({
@@ -19,7 +20,7 @@ class ChatRoom extends Room {
     // the room will be unlocked as soon as a client disconnects from it.
     this.maxClients = 2
     // Frequency to send the room state to connected clients (in milliseconds)
-    this.setPatchRate(16.6)
+    this.setPatchRate(patchRate)
   }
 
   onInit() {

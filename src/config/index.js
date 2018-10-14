@@ -1,7 +1,8 @@
 const playerMoveSpeed = 200 / 1000
-const _60fps = 16.6666
+// const patchRate = 16.6666
+const patchRate = 50
 // update slightly faster than the patchRate
-const updateRate = _60fps - 1
+const updateRate = patchRate - 1
 const playerDt = playerMoveSpeed * updateRate
 
-module.exports = { playerMoveSpeed, updateRate, playerDt }
+module.exports = { patchRate, playerMoveSpeed, updateRate, playerDt }
