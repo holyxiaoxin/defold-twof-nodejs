@@ -40,20 +40,7 @@ class BattleState {
     return this.getPlayer(id).isMoving()
   }
 
-  setPlayerFinalPosition(id, position) {
-    this.getPlayer(id).setFinalPosition(position)
-  }
-
-  getPlayerFinalPosition(id) {
-    return this.getPlayer(id).getFinalPosition()
-  }
-
-  clearPlayerFinalPosition(id) {
-    this.getPlayer(id).clearFinalPosition()
-  }
-
-  runMoveInterval(id, positions) {
-    const position = positions[0]
+  runMoveInterval(id, position) {
     const { x, y } = position
     const deltaX = x - this.getPlayerPosition(id).x
     const deltaY = y - this.getPlayerPosition(id).y
@@ -62,38 +49,24 @@ class BattleState {
     // exit condition: we teleport players to touch point on last mile
     if (Math.abs(deltaX) < threshold && Math.abs(deltaY) < threshold) {
       this.movePlayerTo(id, { x, y })
-
-      if (positions.length <= 1) { // done
-        this.clearPlayerFinalPosition(id)
-        this.intervals[id].clear()
-      } else {
-        this.intervals[id].clear()
-        this._startMovePlayerInterval(id, positions.slice(1, positions.length))
-      }
+      this.intervals[id].clear()
 
       return
     }
 
-    const moveDir = this.layout.nextDirection(this.getPlayerPosition(id), this.layout.posCenterTile(position))
+    const moveDir = this.layout.nextDirection(this.getPlayerPosition(id), position)
 
     this.movePlayerBy(id, { x: moveDir.x * playerDt, y: moveDir.y * playerDt })
   }
 
-  _startMovePlayerInterval(id, positions) {
+  _startMovePlayerInterval(id, position) {
     this.intervals[id] = this.clock.setInterval(() => {
-      this.runMoveInterval(id, positions)
+      this.runMoveInterval(id, position)
     }, updateRate)
   }
 
   shouldSkipMove(id, position) {
     if (!this.layout.isValidPosition(position)) return true
-
-    // skip unnecessary movements
-    if (this.isPlayerMoving(id)) {
-      if (this.layout.sameTile(this.getPlayerFinalPosition(id), position)) return true
-    } else if (this.layout.sameTile(this.getPlayerPosition(id), position)) {
-      return true
-    }
 
     return false
   }
@@ -104,19 +77,11 @@ class BattleState {
 
     // reset state
     if (this.intervals[id] && this.intervals[id].active) {
-      this.clearPlayerFinalPosition(id)
       this.intervals[id].clear()
     }
 
     // set-up
-    this.setPlayerFinalPosition(id, position)
-    // we might be halfway moving and got interupted by another startMovePlayerInterval,
-    // we want to at least move to nearest tile first
-    const nearestTile = this.layout.getNearestTile(this.getPlayerPosition(id), position)
-    const centerTileFinalPosition = this.layout.posCenterTile(position)
-
-    // start
-    this._startMovePlayerInterval(id, [nearestTile, centerTileFinalPosition])
+    this._startMovePlayerInterval(id, position)
   }
 
   attackPlayer(fromId, toId, position) {
